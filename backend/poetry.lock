@@ -52,6 +52,21 @@ files = [
 django = ">=4.2"
 
 [[package]]
+name = "python-dotenv"
+version = "1.2.2"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a"},
+    {file = "python_dotenv-1.2.2.tar.gz", hash = "sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "ruff"
 version = "0.15.12"
 description = "An extremely fast Python linter and code formatter, written in Rust."
@@ -111,4 +126,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.14"
-content-hash = "4a3692169ccbf3df2271c26e39cb72ca1630ee09f381d8c5368ba54b2f846670"
+content-hash = "374e3774f52052f0058fb5d1f25d7e3e50f273630d85999d86f8a975c8b65ed3"
