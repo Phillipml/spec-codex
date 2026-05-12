@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,6 +29,12 @@ SECRET_KEY = "django-insecure-nztm+#8^dk$f(ot6g55wuv=g&)%dk&!ajl*#g)c@@gn67qswo#
 DEBUG = True
 
 ALLOWED_HOSTS = []
+BNET_CLIENT_ID = os.environ.get("BNET_CLIENT_ID", "")
+BNET_CLIENT_SECRET = os.environ.get("BNET_CLIENT_SECRET", "")
+BNET_TOKEN_URL = os.environ.get("BNET_TOKEN_URL", "https://oauth.battle.net/token")
+BNET_API_BASE = os.environ.get("BNET_API_BASE", "https://us.api.blizzard.com").rstrip(
+    "/"
+)
 
 
 # Application definition
@@ -37,7 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework"
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
