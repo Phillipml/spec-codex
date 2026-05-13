@@ -19,3 +19,32 @@ def fetch_client_credentials_token() -> BNetToken:
     if not client_id or not client_secret:
         msg = "Client ID e/ou client secret não encontrado"
         raise RuntimeError(msg)
+    
+    data = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.post(settings.BNET_TOKEN_URL, data=data)
+        res.raise_for_status()
+        body = res.json()
+
+    return BNetToken(
+        access_token=body["access_token"],
+        token_type=body.get("token_type", "bearer")
+    )
+
+def fetch_playable_race_index(
+    *,
+    namespace: str = "static-us",
+    locale: str = "pt_BR"
+) -> dict[str,Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/playable-race/index"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+
