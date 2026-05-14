@@ -10,4 +10,6 @@ class PlayableRaceIndexView(APIView):
 
     def get(self, request):
         data = fetch_playable_race_index()
-        return Response(data)
+        races = data.get("races", [])
+        simplified = [{"name": i["name"], "id": i["id"]} for i in races]
+        return Response(simplified)
