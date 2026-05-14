@@ -23,10 +23,10 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-nztm+#8^dk$f(ot6g55wuv=g&)%dk&!ajl*#g)c@@gn67qswo#"
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "0").lower() in ("1", "true", "yes", "on")
 
 ALLOWED_HOSTS = []
 BNET_CLIENT_ID = os.environ.get("BNET_CLIENT_ID", "")
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "blizzard",
 ]
 
 MIDDLEWARE = [
