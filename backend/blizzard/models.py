@@ -11,4 +11,4 @@ class PlayableRace(models.Model):
         ordering = ["name"]
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.blizzard_id})"
+        return f"{self.name} ({self.race_id})"

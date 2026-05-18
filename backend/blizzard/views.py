@@ -15,9 +15,7 @@ class PlayableRaceListView(APIView):
 
     def get(self, request):
         rows = PlayableRace.objects.all()
-        data = [
-            {"id": r.blizzard_id, "name": r.name, "faction": r.faction} for r in rows
-        ]
+        data = [{"id": r.race_id, "name": r.name, "faction": r.faction} for r in rows]
         return Response(data)
 
 
