@@ -24,6 +24,7 @@ class PlayableRaceClass(models.Model):
     class_id = models.PositiveIntegerField()
     name = models.CharField(max_length=255)
     image_url = models.URLField(max_length=512)
+    synced_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "playable_race_classes"
