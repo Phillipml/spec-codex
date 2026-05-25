@@ -7,6 +7,9 @@ from .client import fetch_client_credentials_token
 from .models import PlayableRace, PlayableRaceClass
 from .sync_races import _faction_label
 
+# Aventureiro (14): listado na API mas sem media e fora do criador de personagem padrão.
+_SKIP_CLASS_IDS = frozenset({14})
+
 
 def _class_icon_url(media_payload: dict[str, Any]) -> str:
     for asset in media_payload.get("assets", []):
@@ -53,6 +56,8 @@ def sync_playable_race_classes_from_api(
         with transaction.atomic():
             for pc in playable_classes:
                 class_id = int(pc["id"])
+                if class_id in _SKIP_CLASS_IDS:
+                    continue
                 media_url = (
                     f"{settings.BNET_API_BASE}/data/wow/media/playable-class/{class_id}"
                 )
