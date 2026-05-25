@@ -20,7 +20,6 @@ def _faction_label(detail: dict[str, Any], *, locale: str) -> str:
     faction = detail.get("faction") or {}
     names = faction.get("name")
 
-    # Com locale na query, a API costuma devolver name já localizado (string).
     if isinstance(names, str) and names.strip():
         return names.strip()
 
