@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import PlayableRace
+from .models import PlayableClass, PlayableRace
+from .sync_class_specs import sync_all_playable_class_specs_from_api
 from .sync_race_classes import sync_all_playable_race_classes_from_api
 from .sync_races import sync_playable_races_from_api
 
@@ -111,6 +112,55 @@ class PlayableRaceClassesSyncView(APIView):
 
         try:
             stats = sync_all_playable_race_classes_from_api()
+        except Exception as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+        return Response(stats)
+
+
+class PlayableClassSpecsListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        rows = PlayableClass.objects.prefetch_related("specializations").all()
+        if not rows.exists():
+            return Response(
+                {"detail": "Classes e specs ainda não sincronizadas."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data = [
+            {
+                "id": c.class_id,
+                "name": c.name,
+                "image": c.image_url,
+                "specializations": [
+                    {
+                        "id": s.spec_id,
+                        "name": s.name,
+                        "image": s.image_url,
+                    }
+                    for s in c.specializations.all()
+                ],
+            }
+            for c in rows
+        ]
+        return Response(data)
+
+
+class PlayableClassSpecsSyncView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        err = _cron_auth_response(request)
+        if err is not None:
+            return err
+
+        try:
+            stats = sync_all_playable_class_specs_from_api()
         except Exception as exc:
             return Response(
                 {"detail": str(exc)},
