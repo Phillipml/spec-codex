@@ -1,7 +1,7 @@
 [project]
 name = "backend-spec-codex"
 version = "0.1.0"
-description = "API Django com cache de raças e classes jogáveis do WoW (Blizzard Game Data)."
+description = "API Django com cache de raças, classes por raça e especializações do WoW (Blizzard Game Data)."
 authors = [
     {name = "Phillipml",email = "contato.phillip.menezes@gmail.com"}
 ]

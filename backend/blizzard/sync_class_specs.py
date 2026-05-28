@@ -14,7 +14,7 @@ _SKIP_CLASS_IDS = frozenset({14})
 
 def _icon_url_from_media(media_payload: dict[str, Any]) -> str:
     for asset in media_payload.get("assets", []):
-        if sset.get("key") == "icon":
+        if asset.get("key") == "icon":
             value = asset.get("value")
             if value:
                 return str(value)
