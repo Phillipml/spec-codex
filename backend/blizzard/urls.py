@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import (
+    PlayableClassSpecsListView,
+    PlayableClassSpecsSyncView,
     PlayableRaceClassesListView,
     PlayableRaceClassesSyncView,
     PlayableRaceListView,
@@ -27,5 +29,15 @@ urlpatterns = [
         "wow/playable-race/playable-classes/sync",
         PlayableRaceClassesSyncView.as_view(),
         name="wow-playable-race-classes-sync",
+    ),
+    path(
+        "playable-classes/specs/index",
+        PlayableClassSpecsListView.as_view(),
+        name="playable-class-specs-index",
+    ),
+    path(
+        "playable-classes/specs/sync",
+        PlayableClassSpecsSyncView.as_view(),
+        name="playable-class-specs-sync",
     ),
 ]

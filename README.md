@@ -1,16 +1,18 @@
 # spec-codex
 
-Backend de integração com a **Blizzard Game Data API** (World of Warcraft) para servir dados de raças e classes jogáveis ao front-end. Os dados são sincronizados periodicamente para o banco local; as rotas públicas de leitura **não** chamam a Blizzard em tempo real.
+Backend de integração com a **Blizzard Game Data API** (World of Warcraft) para servir dados de raças, classes por raça e especializações (specs) ao front-end. Os dados são sincronizados periodicamente para o banco local; as rotas públicas de leitura **não** chamam a Blizzard em tempo real.
 
 ## Descrição do projeto
 
 API REST em Django que:
 
 1. Autentica na Blizzard com **Client Credentials** (OAuth).
-2. Sincroniza **raças jogáveis** (`playable_races`) e, para cada raça, as **classes permitidas** com ícone (`playable_race_classes`).
-3. Expõe endpoints de leitura para o front montar fluxos de criação de personagem (escolha de raça → classes da raça).
+2. Sincroniza **raças jogáveis** (`playable_races`).
+3. Para cada raça, sincroniza as **classes permitidas** com ícone (`playable_race_classes`).
+4. Sincroniza **classes globais** e suas **especializações** com ícones (`playable_classes`, `playable_class_specializations`).
+5. Expõe endpoints de leitura para o front montar fluxos de criação de personagem (raça → classes da raça; árvore classe → specs).
 
-O front consome apenas `GET` no backend; atualização dos dados fica a cargo de cron job ou commands de management.
+O front consome apenas `GET` no backend; atualização dos dados fica a cargo de cron job ou management commands.
 
 ## Tecnologias utilizadas
 
@@ -33,24 +35,42 @@ O front consome apenas `GET` no backend; atualização dos dados fica a cargo de
 
 - **SQLite** em desenvolvimento (`backend/db.sqlite3`) quando `DATABASE_URL` não está definido.
 - **PostgreSQL** em produção usando `DATABASE_URL` (compatível com hosts como Railway, Render, etc.).
-- Tabelas explícitas: `playable_races` e `playable_race_classes`, com `race_id` / `(race, class_id)` alinhados aos IDs da Blizzard.
-- `synced_at` em ambos os modelos para rastrear última escrita no sync.
-- Leitura do front sempre via ORM (rápida, sem rate limit da Blizzard no caminho crítico).
+- Quatro tabelas de domínio, com nomes explícitos via `db_table`:
+
+| Tabela | Modelo | Propósito |
+|--------|--------|-----------|
+| `playable_races` | `PlayableRace` | Raças (`race_id` único da Blizzard) |
+| `playable_race_classes` | `PlayableRaceClass` | Classes permitidas por raça (N:N materializado) |
+| `playable_classes` | `PlayableClass` | Classes globais com ícone |
+| `playable_class_specializations` | `PlayableClassSpecialization` | Specs por classe (`unique_together` em `playable_class` + `spec_id`) |
+
+- `synced_at` em todos os modelos (`auto_now=True`) para rastrear última escrita no sync.
+- Leitura do front sempre via ORM, com `prefetch_related` onde há relação pai-filho (specs).
+- **Migrations versionadas no Git** — toda alteração de schema via `manage.py makemigrations` / `migrate`.
 
 ### Integração com API (não é LLM)
 
-Não há integração com LLM neste repositório. A “inteligência” do fluxo é:
+Não há integração com LLM neste repositório. O padrão é **cache local**:
 
-- **Sync (escrita):** cron ou CLI chama Blizzard → persiste no banco.
+- **Sync (escrita):** cron ou CLI chama Blizzard → persiste no banco (`update_or_create` + remoção de registros órfãos).
 - **Index (leitura):** front chama Django → resposta montada do banco.
 
-Credenciais: `BNET_CLIENT_ID` e `BNET_CLIENT_SECRET`. Token obtido em `BNET_TOKEN_URL`; dados em `BNET_API_BASE` (padrão `https://us.api.blizzard.com`).
+Credenciais: `BNET_CLIENT_ID` e `BNET_CLIENT_SECRET`. Token em `BNET_TOKEN_URL`; dados em `BNET_API_BASE` (padrão `https://us.api.blizzard.com`).
 
-Fluxo de classes por raça:
+**Classes por raça** (`sync_race_classes.py`):
 
 1. `GET /data/wow/playable-race/{id}` → lista `playable_classes`.
-2. Para cada classe, `GET /data/wow/media/playable-class/{class_id}` → URL do ícone (`assets[key=icon]`).
-3. `update_or_create` em `playable_race_classes`; remove classes que deixaram de existir na API para aquela raça.
+2. Para cada classe, `GET /data/wow/media/playable-class/{class_id}` → ícone (`assets[key=icon]`).
+3. Persiste em `playable_race_classes`; remove classes que saíram da API para aquela raça.
+
+**Classes e specs globais** (`sync_class_specs.py`):
+
+1. `GET /data/wow/playable-class/index` → itera classes.
+2. Por classe: `GET /data/wow/playable-class/{id}` (detalhe + lista de `specializations`) e mídia da classe.
+3. Por spec: `GET /data/wow/media/playable-specialization/{spec_id}` → ícone.
+4. Persiste em `playable_classes` e `playable_class_specializations`; remove specs órfãs por classe.
+
+Locale padrão: `pt_BR` para nomes; mídia de specs usa `en_US` por padrão (`spec_media_locale`), pois a API de mídia costuma responder melhor nesse locale.
 
 ### Multi-tenancy
 
@@ -60,35 +80,40 @@ Fluxo de classes por raça:
 
 | Desafio | Solução |
 |---------|---------|
-| Volume de chamadas (raças × classes) | Um `httpx.Client` reutilizado no sync em lote; token OAuth uma vez por execução de sync por raça no loop interno |
-| Classe **Aventureiro** (id 14) na API sem endpoint de mídia (404) | Ignorada no sync (`_SKIP_CLASS_IDS`); não aparece no front |
-| Ordem do cron | Sync de **raças** antes de **classes** (`sync_all` lê `PlayableRace` do banco) |
-| `synced_at` no model sem migration aplicada | Rodar `python manage.py migrate` |
-| Proteção do sync | `POST` de sync exige `Authorization: Bearer <CRON_SYNC_SECRET>` |
+| Volume de chamadas (raças × classes × specs) | `httpx.Client` reutilizado no sync em lote; token OAuth por execução de sync |
+| Classe **Aventureiro** (id 14) sem mídia útil / fora do criador padrão | Ignorada no sync (`_SKIP_CLASS_IDS` em `sync_race_classes` e `sync_class_specs`) |
+| Ordem do cron para dados por raça | Sync de **raças** antes de **classes por raça** (`sync_all` lê `PlayableRace` do banco) |
+| Specs independentes de raça | Sync de classes/specs pode rodar em paralelo ou após raças; não depende de `playable_races` |
+| Proteção dos endpoints de sync | `POST` exige `Authorization: Bearer <CRON_SYNC_SECRET>` (`secrets.compare_digest`) |
+| Migrations no repositório | Commitar arquivos em `blizzard/migrations/` junto com alterações de `models.py` |
 
 ## Funcionalidades implementadas
 
 ### Obrigatórias
 
 - [x] Listagem de raças jogáveis (`GET /api/wow/playable-race/index`)
-- [x] Sync de raças a partir da Blizzard (`POST /api/wow/playable-race/sync` + command `sync_playable_races`)
-- [x] Classes jogáveis por raça com nome, facção da raça e ícone (`GET /api/wow/playable-race/{race_id}/playable-classes/index`)
-- [x] Sync de todas as classes de todas as raças no banco (`POST /api/wow/playable-race/playable-classes/sync` + command `sync_playable_race_classes`)
-- [x] Persistência em `playable_races` e `playable_race_classes`
-- [x] Exclusão da classe Aventureiro (id 14) no sync
+- [x] Sync de raças (`POST /api/wow/playable-race/sync` + `sync_playable_races`)
+- [x] Classes jogáveis por raça com nome, facção e ícone (`GET /api/wow/playable-race/{race_id}/playable-classes/index`)
+- [x] Sync de classes por raça (`POST /api/wow/playable-race/playable-classes/sync` + `sync_playable_race_classes`)
+- [x] Listagem de classes com especializações e ícones (`GET /api/playable-classes/specs/index`)
+- [x] Sync de classes e specs (`POST /api/playable-classes/specs/sync` + `sync_playable_class_specs`)
+- [x] Persistência nas quatro tabelas de domínio
+- [x] Exclusão da classe Aventureiro (id 14) nos syncs
 
 ### Diferenciais / operação
 
 - [x] Management commands para sync local e CI
 - [x] Suporte a Postgres em produção via `DATABASE_URL`
-- [x] Locale `pt_BR` e namespace `static-us` configuráveis nos syncs
+- [x] Locale `pt_BR` e namespace `static-us` configuráveis nos commands (`--namespace`, `--locale`, `--spec-media-locale`)
+- [x] Tradução de facção (Aliança/Horda) a partir do payload da API
 
 ### Fora do escopo (por enquanto)
 
 - [ ] Front-end neste repositório
-- [ ] Testes automatizados
-- [ ] Endpoint único “sync completo” (raças + classes em um POST)
+- [ ] Testes automatizados (`blizzard/tests.py` vazio)
+- [ ] Endpoint único “sync completo” (raças + classes + specs em um POST)
 - [ ] LLM / multi-tenancy
+- [ ] Django Admin registrado para os models
 
 ## Estrutura do repositório
 
@@ -96,8 +121,20 @@ Fluxo de classes por raça:
 spec-codex/
 ├── README.md
 └── backend/
-    ├── blizzard/          # app Django (models, sync, views, API)
-    ├── config/            # settings, urls raiz
+    ├── blizzard/
+    │   ├── client.py              # OAuth e helpers HTTP Blizzard
+    │   ├── models.py
+    │   ├── sync_races.py
+    │   ├── sync_race_classes.py
+    │   ├── sync_class_specs.py
+    │   ├── views.py
+    │   ├── urls.py
+    │   ├── migrations/
+    │   └── management/commands/
+    │       ├── sync_playable_races.py
+    │       ├── sync_playable_race_classes.py
+    │       └── sync_playable_class_specs.py
+    ├── config/                    # settings, urls raiz
     ├── manage.py
     └── .env.example
 ```
@@ -107,12 +144,13 @@ spec-codex/
 ```bash
 cd backend
 cp .env.example .env
-# Edite .env com DJANGO_SECRET_KEY, BNET_* e opcionalmente CRON_SYNC_SECRET
+# Edite .env: DJANGO_SECRET_KEY, BNET_*, CRON_SYNC_SECRET
 
 poetry install
 poetry run python manage.py migrate
 poetry run python manage.py sync_playable_races
 poetry run python manage.py sync_playable_race_classes
+poetry run python manage.py sync_playable_class_specs
 poetry run python manage.py runserver
 ```
 
@@ -140,14 +178,13 @@ Base: `/api/`
 |--------|------|-----------|
 | GET | `/wow/playable-race/index` | Lista raças: `id`, `name`, `faction` |
 | GET | `/wow/playable-race/{race_id}/playable-classes/index` | Raça + `playable_classes[]` (`class_id`, `name`, `image`) |
+| GET | `/playable-classes/specs/index` | Classes com `specializations[]` (`id`, `name`, `image`) |
 
-Exemplo:
+Exemplo — classes por raça:
 
 ```http
 GET /api/wow/playable-race/10/playable-classes/index
 ```
-
-Resposta (estrutura):
 
 ```json
 {
@@ -161,22 +198,51 @@ Resposta (estrutura):
 }
 ```
 
+Exemplo — classes e specs:
+
+```http
+GET /api/playable-classes/specs/index
+```
+
+```json
+[
+  {
+    "id": 2,
+    "name": "Paladino",
+    "image": "https://render.worldofwarcraft.com/...",
+    "specializations": [
+      { "id": 65, "name": "Proteção", "image": "https://render.worldofwarcraft.com/..." }
+    ]
+  }
+]
+```
+
+Retorna `404` se os dados ainda não foram sincronizados.
+
 ### Sincronização (cron — requer Bearer)
 
 Header: `Authorization: Bearer <CRON_SYNC_SECRET>`
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/wow/playable-race/sync` | Atualiza todas as raças → `{"synced": N}` |
-| POST | `/wow/playable-race/playable-classes/sync` | Atualiza classes de todas as raças → `{"races": N, "classes": M}` |
+| Método | Rota | Resposta |
+|--------|------|----------|
+| POST | `/wow/playable-race/sync` | `{"synced": N}` |
+| POST | `/wow/playable-race/playable-classes/sync` | `{"races": N, "classes": M}` |
+| POST | `/playable-classes/specs/sync` | `{"classes": N, "specializations": M}` |
 
-**Ordem recomendada no cron:** raças primeiro, depois classes.
+**Ordem recomendada no cron:**
+
+1. Raças (`/wow/playable-race/sync`)
+2. Classes por raça (`/wow/playable-race/playable-classes/sync`) — depende de raças no banco
+3. Classes e specs globais (`/playable-classes/specs/sync`) — independente de raças
 
 ```bash
 curl -X POST https://SEU_HOST/api/wow/playable-race/sync \
   -H "Authorization: Bearer SEU_CRON_SYNC_SECRET"
 
 curl -X POST https://SEU_HOST/api/wow/playable-race/playable-classes/sync \
+  -H "Authorization: Bearer SEU_CRON_SYNC_SECRET"
+
+curl -X POST https://SEU_HOST/api/playable-classes/specs/sync \
   -H "Authorization: Bearer SEU_CRON_SYNC_SECRET"
 ```
 
@@ -185,6 +251,16 @@ Equivalente CLI:
 ```bash
 poetry run python manage.py sync_playable_races
 poetry run python manage.py sync_playable_race_classes
+poetry run python manage.py sync_playable_class_specs
+```
+
+Opções do sync de specs:
+
+```bash
+poetry run python manage.py sync_playable_class_specs \
+  --namespace static-us \
+  --locale pt_BR \
+  --spec-media-locale en_US
 ```
 
 ## Deploy (produção)
@@ -193,7 +269,7 @@ poetry run python manage.py sync_playable_race_classes
 2. `python manage.py migrate --noinput`
 3. Subir app (ex.: Gunicorn + `config.wsgi`)
 4. Executar sync inicial (cron ou commands acima)
-5. Validar `GET .../playable-race/10/playable-classes/index`
+5. Validar leitura: `GET .../wow/playable-race/index` e `GET .../playable-classes/specs/index`
 
 ## Licença
 

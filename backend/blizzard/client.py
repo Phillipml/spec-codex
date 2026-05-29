@@ -81,3 +81,51 @@ def fetch_playable_class_media(
         res = client.get(url, params=params, headers=headers)
         res.raise_for_status()
         return res.json()
+
+
+def fetch_playable_class_index(
+    *, namespace: str = "static-us", locale: str = "pt_BR"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/playable-class/index"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_playable_class_detail(
+    class_id: int, *, namespace: str = "static-us", locale: str = "pt_BR"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/playable-class/{class_id}"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_playable_specialization_media(
+    spec_id: int, *, namespace: str = "static-us", locale: str = "en_US"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/media/playable-specialization/{spec_id}"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
