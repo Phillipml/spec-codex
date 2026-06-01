@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    PlayableClassSpecsDetailView,
     PlayableClassSpecsListView,
     PlayableClassSpecsSyncView,
     PlayableRaceClassesListView,
@@ -39,5 +40,10 @@ urlpatterns = [
         "playable-classes/specs/sync",
         PlayableClassSpecsSyncView.as_view(),
         name="playable-class-specs-sync",
+    ),
+    path(
+        "playable-classes/<int:class_id>/specs/",
+        PlayableClassSpecsDetailView.as_view(),
+        name="playable-class-specs-detail",
     ),
 ]
