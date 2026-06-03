@@ -36,6 +36,18 @@ def _cron_auth_response(request) -> Response | None:
     return None
 
 
+def _playable_class_payload(playable_class: PlayableClass) -> dict:
+    return {
+        "id": playable_class.class_id,
+        "name": playable_class.name,
+        "image": playable_class.image_url,
+        "specializations": [
+            {"id": s.spec_id, "name": s.name, "image": s.image_url}
+            for s in playable_class.specializations.all()
+        ],
+    }
+
+
 class PlayableRaceListView(APIView):
     permission_classes = [AllowAny]
 
@@ -131,23 +143,30 @@ class PlayableClassSpecsListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        data = [
-            {
-                "id": c.class_id,
-                "name": c.name,
-                "image": c.image_url,
-                "specializations": [
-                    {
-                        "id": s.spec_id,
-                        "name": s.name,
-                        "image": s.image_url,
-                    }
-                    for s in c.specializations.all()
-                ],
-            }
-            for c in rows
-        ]
-        return Response(data)
+        return Response([_playable_class_payload(c) for c in rows])
+
+
+class PlayableClassSpecsDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, class_id: int):
+        try:
+            playable_class = PlayableClass.objects.prefetch_related(
+                "specializations"
+            ).get(class_id=class_id)
+        except PlayableClass.DoesNotExist:
+            return Response(
+                {"detail": "Classe não encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not playable_class.specializations.exists():
+            return Response(
+                {"detail": "Specs ainda não sincronizadas para esta classe."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(_playable_class_payload(playable_class))
 
 
 class PlayableClassSpecsSyncView(APIView):

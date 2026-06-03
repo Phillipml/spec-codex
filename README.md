@@ -10,7 +10,7 @@ API REST em Django que:
 2. Sincroniza **raças jogáveis** (`playable_races`).
 3. Para cada raça, sincroniza as **classes permitidas** com ícone (`playable_race_classes`).
 4. Sincroniza **classes globais** e suas **especializações** com ícones (`playable_classes`, `playable_class_specializations`).
-5. Expõe endpoints de leitura para o front montar fluxos de criação de personagem (raça → classes da raça; árvore classe → specs).
+5. Expõe endpoints de leitura para o front montar fluxos de criação de personagem (raça → classes da raça; árvore classe → specs, lista ou por `class_id`).
 
 O front consome apenas `GET` no backend; atualização dos dados fica a cargo de cron job ou management commands.
 
@@ -96,6 +96,7 @@ Locale padrão: `pt_BR` para nomes; mídia de specs usa `en_US` por padrão (`sp
 - [x] Classes jogáveis por raça com nome, facção e ícone (`GET /api/wow/playable-race/{race_id}/playable-classes/index`)
 - [x] Sync de classes por raça (`POST /api/wow/playable-race/playable-classes/sync` + `sync_playable_race_classes`)
 - [x] Listagem de classes com especializações e ícones (`GET /api/playable-classes/specs/index`)
+- [x] Detalhe de uma classe com specs (`GET /api/playable-classes/{class_id}/specs/`)
 - [x] Sync de classes e specs (`POST /api/playable-classes/specs/sync` + `sync_playable_class_specs`)
 - [x] Persistência nas quatro tabelas de domínio
 - [x] Exclusão da classe Aventureiro (id 14) nos syncs
@@ -178,7 +179,8 @@ Base: `/api/`
 |--------|------|-----------|
 | GET | `/wow/playable-race/index` | Lista raças: `id`, `name`, `faction` |
 | GET | `/wow/playable-race/{race_id}/playable-classes/index` | Raça + `playable_classes[]` (`class_id`, `name`, `image`) |
-| GET | `/playable-classes/specs/index` | Classes com `specializations[]` (`id`, `name`, `image`) |
+| GET | `/playable-classes/specs/index` | Todas as classes com `specializations[]` (`id`, `name`, `image`) |
+| GET | `/playable-classes/{class_id}/specs/` | Uma classe com `specializations[]` (mesmo formato de item do index) |
 
 Exemplo — classes por raça:
 
@@ -198,7 +200,7 @@ GET /api/wow/playable-race/10/playable-classes/index
 }
 ```
 
-Exemplo — classes e specs:
+Exemplo — classes e specs (lista):
 
 ```http
 GET /api/playable-classes/specs/index
@@ -217,7 +219,32 @@ GET /api/playable-classes/specs/index
 ]
 ```
 
-Retorna `404` se os dados ainda não foram sincronizados.
+Exemplo — uma classe e suas specs:
+
+```http
+GET /api/playable-classes/2/specs/
+```
+
+```json
+{
+  "id": 2,
+  "name": "Paladino",
+  "image": "https://render.worldofwarcraft.com/...",
+  "specializations": [
+    { "id": 65, "name": "Proteção", "image": "https://render.worldofwarcraft.com/..." },
+    { "id": 66, "name": "Sagrado", "image": "https://render.worldofwarcraft.com/..." },
+    { "id": 70, "name": "Retribuição", "image": "https://render.worldofwarcraft.com/..." }
+  ]
+}
+```
+
+**Erros `404` (leitura):**
+
+| Rota | Motivo |
+|------|--------|
+| `/playable-classes/specs/index` | Nenhuma classe/spec sincronizada ainda |
+| `/playable-classes/{class_id}/specs/` | Classe inexistente, ou specs ainda não sincronizadas para essa classe |
+| `/wow/playable-race/{race_id}/playable-classes/index` | Raça inexistente, ou classes da raça ainda não sincronizadas |
 
 ### Sincronização (cron — requer Bearer)
 
@@ -269,7 +296,7 @@ poetry run python manage.py sync_playable_class_specs \
 2. `python manage.py migrate --noinput`
 3. Subir app (ex.: Gunicorn + `config.wsgi`)
 4. Executar sync inicial (cron ou commands acima)
-5. Validar leitura: `GET .../wow/playable-race/index` e `GET .../playable-classes/specs/index`
+5. Validar leitura: `GET .../wow/playable-race/index`, `GET .../playable-classes/specs/index` e `GET .../playable-classes/{class_id}/specs/`
 
 ## Licença
 
