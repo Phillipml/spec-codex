@@ -36,15 +36,19 @@ def _cron_auth_response(request) -> Response | None:
     return None
 
 
+def _specializations_payload(playable_class: PlayableClass) -> list[dict]:
+    return [
+        {"id": s.spec_id, "name": s.name, "image": s.image_url}
+        for s in playable_class.specializations.all()
+    ]
+
+
 def _playable_class_payload(playable_class: PlayableClass) -> dict:
     return {
         "id": playable_class.class_id,
         "name": playable_class.name,
         "image": playable_class.image_url,
-        "specializations": [
-            {"id": s.spec_id, "name": s.name, "image": s.image_url}
-            for s in playable_class.specializations.all()
-        ],
+        "specializations": _specializations_payload(playable_class),
     }
 
 
@@ -132,24 +136,25 @@ class PlayableRaceClassesSyncView(APIView):
         return Response(stats)
 
 
-class PlayableClassSpecsListView(APIView):
+class PlayableRaceClassSpecsDetailView(APIView):
+
     permission_classes = [AllowAny]
 
-    def get(self, request):
-        rows = PlayableClass.objects.prefetch_related("specializations").all()
-        if not rows.exists():
+    def get(self, request, race_id: int, class_id: int):
+        try:
+            race = PlayableRace.objects.get(race_id=race_id)
+        except PlayableRace.DoesNotExist:
             return Response(
-                {"detail": "Classes e specs ainda não sincronizadas."},
+                {"detail": "Raça não encontrada."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        return Response([_playable_class_payload(c) for c in rows])
+        if not race.playable_classes.filter(class_id=class_id).exists():
+            return Response(
+                {"detail": "Classe não disponível para esta raça."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-
-class PlayableClassSpecsDetailView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, class_id: int):
         try:
             playable_class = PlayableClass.objects.prefetch_related(
                 "specializations"
@@ -166,7 +171,34 @@ class PlayableClassSpecsDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        return Response(_playable_class_payload(playable_class))
+        return Response(
+            {
+                "id": race.race_id,
+                "race_id": race.race_id,
+                "race_name": race.name,
+                "faction": race.faction,
+                "class": {
+                    "id": playable_class.class_id,
+                    "name": playable_class.name,
+                    "image": playable_class.image_url,
+                    "specializations": _specializations_payload(playable_class),
+                },
+            }
+        )
+
+
+class PlayableClassSpecsListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        rows = PlayableClass.objects.prefetch_related("specializations").all()
+        if not rows.exists():
+            return Response(
+                {"detail": "Classes e specs ainda não sincronizadas."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response([_playable_class_payload(c) for c in rows])
 
 
 class PlayableClassSpecsSyncView(APIView):
