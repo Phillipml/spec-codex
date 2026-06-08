@@ -137,7 +137,6 @@ class PlayableRaceClassesSyncView(APIView):
 
 
 class PlayableRaceClassSpecsDetailView(APIView):
-
     permission_classes = [AllowAny]
 
     def get(self, request, race_id: int, class_id: int):
