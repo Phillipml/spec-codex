@@ -1,9 +1,9 @@
 from django.urls import path
 
 from .views import (
-    PlayableClassSpecsDetailView,
     PlayableClassSpecsListView,
     PlayableClassSpecsSyncView,
+    PlayableRaceClassSpecsDetailView,
     PlayableRaceClassesListView,
     PlayableRaceClassesSyncView,
     PlayableRaceListView,
@@ -12,38 +12,38 @@ from .views import (
 
 urlpatterns = [
     path(
-        "wow/playable-race/index",
+        "playable-race/index",
         PlayableRaceListView.as_view(),
-        name="wow-playable-race-index",
+        name="playable-race-index",
     ),
     path(
-        "wow/playable-race/sync",
+        "playable-race/sync",
         PlayableRaceSyncView.as_view(),
-        name="wow-playable-race-sync",
+        name="playable-race-sync",
     ),
     path(
-        "wow/playable-race/<int:race_id>/playable-classes/index",
-        PlayableRaceClassesListView.as_view(),
-        name="wow-playable-race-classes-index",
-    ),
-    path(
-        "wow/playable-race/playable-classes/sync",
+        "playable-race/playable-classes/sync",
         PlayableRaceClassesSyncView.as_view(),
-        name="wow-playable-race-classes-sync",
+        name="playable-race-classes-sync",
     ),
     path(
-        "playable-classes/specs/index",
+        "playable-race/<int:race_id>/playable-classes/<int:class_id>/specs/",
+        PlayableRaceClassSpecsDetailView.as_view(),
+        name="playable-race-class-specs",
+    ),
+    path(
+        "playable-race/<int:race_id>/playable-classes",
+        PlayableRaceClassesListView.as_view(),
+        name="playable-race-classes",
+    ),
+    path(
+        "playable-classes/specs",
         PlayableClassSpecsListView.as_view(),
-        name="playable-class-specs-index",
+        name="playable-class-specs",
     ),
     path(
         "playable-classes/specs/sync",
         PlayableClassSpecsSyncView.as_view(),
         name="playable-class-specs-sync",
-    ),
-    path(
-        "playable-classes/<int:class_id>/specs/",
-        PlayableClassSpecsDetailView.as_view(),
-        name="playable-class-specs-detail",
     ),
 ]
