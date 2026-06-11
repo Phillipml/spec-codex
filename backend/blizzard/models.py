@@ -1,3 +1,6 @@
+from email.policy import default
+from operator import length_hint
+from tokenize import blank_re
 from django.db import models
 
 
@@ -58,6 +61,8 @@ class PlayableClassSpecialization(models.Model):
     spec_id = models.PositiveIntegerField()
     name = models.CharField(max_length=255)
     image_url = models.URLField(max_length=512)
+    description = models.TextField(blank=True, default="")
+    role_name = models.CharField(max_length=64, blank=True, default="")
     synced_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -66,3 +71,28 @@ class PlayableClassSpecialization(models.Model):
 
     def __str__(self) -> str:
         return f"{self.playable_class.name} - {self.name}"
+
+
+class PlayableClassSpecializationSkill(models.Model):
+    specialization = models.ForeignKey(
+        PlayableClassSpecialization,
+        on_delete=models.CASCADE,
+        related_name="skills",
+    )
+    skill_id = models.PositiveIntegerField()
+    name = models.CharField(max_length=255)
+    image_url = models.URLField(max_length=512, blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    cast_time = models.CharField(max_length=128, blank=True, default="")
+    power_cost = models.CharField(max_length=128, blank=True, default="")
+    range = models.CharField(max_length=128, blank=True, default="")
+    cooldown = models.CharField(max_length=128, blank=True, default="")
+    synced_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "playable_class_specialization_skills"
+        unique_together = [("specialization", "skill_id")]
+        ordering = ["skill_id"]
+
+    def __str__(self) -> str:
+        return f"{self.specialization.name} - {self.name}"
