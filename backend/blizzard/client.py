@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import locale
 from typing import Any
 
 import httpx
@@ -120,6 +121,70 @@ def fetch_playable_specialization_media(
 ) -> dict[str, Any]:
     token = fetch_client_credentials_token()
     url = f"{settings.BNET_API_BASE}/data/wow/media/playable-specialization/{spec_id}"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_playable_specialization_index(
+    *, namespace: str = "static-us", locale: str = "pt_BR"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/playable-specialization/index"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_playable_specialization_detail(
+    spec_id: int, *, namespace: str = "static-us", locale: str = "pt_BR"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/playable-specialization/{spec_id}"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_pvp_talent_detail(
+    talent_id: int, *, namespace: str = "static-us", locale: str = "pt_BR"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/pvp-talent/{talent_id}"
+    params = {"namespace": namespace, "locale": locale}
+    headers = {
+        "Authorization": f"Bearer {token.access_token}",
+        "Accept": "application/json",
+    }
+    with httpx.Client(timeout=30.0) as client:
+        res = client.get(url, params=params, headers=headers)
+        res.raise_for_status()
+        return res.json()
+
+
+def fetch_spell_media(
+    spell_id: int, *, namespace: str = "static-us", locale: str = "en_US"
+) -> dict[str, Any]:
+    token = fetch_client_credentials_token()
+    url = f"{settings.BNET_API_BASE}/data/wow/media/spell/{spell_id}"
     params = {"namespace": namespace, "locale": locale}
     headers = {
         "Authorization": f"Bearer {token.access_token}",
