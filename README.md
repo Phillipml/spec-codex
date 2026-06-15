@@ -48,6 +48,8 @@ O endpoint de detalhe de spec valida raça + classe da mesma forma e retorna `de
 | Servidor WSGI | Gunicorn |
 | Gerenciador de deps | Poetry |
 | Linter | Ruff |
+| Testes | pytest, pytest-django |
+| Cobertura | coverage (`fail_under = 90`) |
 | API externa | Blizzard Battle.net / WoW Game Data (`us`, `static-us`, `pt_BR`) |
 
 ## Decisões técnicas
@@ -114,6 +116,13 @@ Locale padrão: `pt_BR` para nomes e tooltips; mídia de specs e spells usa `en_
 
 **Não aplicável** nesta fase: API single-tenant, dados globais do jogo (sem isolamento por usuário/organização). Se o produto evoluir para contas/tenants, seria camada futura acima deste cache estático.
 
+### Testes automatizados
+
+- Suíte em `backend/blizzard/tests/` com **pytest** e banco SQLite em memória (`config/settings_test.py`).
+- Chamadas à Blizzard **mockadas** — os testes não dependem de credenciais reais nem de rede.
+- Cobertura mínima de **90%** no pacote `blizzard` (configurada em `pyproject.toml`); atualmente ~99%.
+- Módulos cobertos: `client`, views, syncs, models, management commands.
+
 ### Desafios encontrados
 
 | Desafio | Solução |
@@ -150,11 +159,11 @@ Locale padrão: `pt_BR` para nomes e tooltips; mídia de specs e spells usa `en_
 - [x] Locale `pt_BR` e namespace `static-us` configuráveis nos commands (`--namespace`, `--locale`, `--spec-media-locale`, `--spell-media-locale`)
 - [x] Tradução de facção (Aliança/Horda) a partir do payload da API
 - [x] Retry automático em falhas transitórias da API Blizzard
+- [x] Testes automatizados com pytest (79 testes, cobertura ≥ 90% no pacote `blizzard`)
 
 ### Fora do escopo (por enquanto)
 
 - [ ] Front-end neste repositório
-- [ ] Testes automatizados (`blizzard/tests.py` vazio)
 - [ ] Endpoint único “sync completo” (raças + classes + specs + detalhes em um POST)
 - [ ] LLM / multi-tenancy
 - [ ] Django Admin registrado para os models
@@ -174,16 +183,34 @@ spec-codex/
     │   ├── sync_spec_details.py   # description, role, skills PvP
     │   ├── views.py
     │   ├── urls.py
+    │   ├── tests/                  # pytest: views, client, syncs, models, commands
     │   ├── migrations/
     │   └── management/commands/
     │       ├── sync_playable_races.py
     │       ├── sync_playable_race_classes.py
     │       ├── sync_playable_class_specs.py
     │       └── sync_playable_spec_details.py
-    ├── config/                    # settings, urls raiz
+    ├── config/                    # settings, settings_test, urls raiz
     ├── manage.py
+    ├── pytest.ini
     └── .env.example
 ```
+
+## Testes
+
+```bash
+cd backend
+poetry install
+
+# Executar suíte
+poetry run pytest blizzard/tests -q
+
+# Com relatório de cobertura (falha se < 90%)
+poetry run coverage run -m pytest blizzard/tests -q
+poetry run coverage report --fail-under=90
+```
+
+`DJANGO_SETTINGS_MODULE` aponta para `config.settings_test` via `pytest.ini` (SQLite em memória, credenciais de teste fixas).
 
 ## Configuração local
 
