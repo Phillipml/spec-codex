@@ -6,10 +6,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import PlayableClass, PlayableRace
+from .models import PlayableClass, PlayableRace, PlayableClassSpecialization
 from .sync_class_specs import sync_all_playable_class_specs_from_api
 from .sync_race_classes import sync_all_playable_race_classes_from_api
 from .sync_races import sync_playable_races_from_api
+from .sync_spec_details import sync_all_playable_spec_details_from_api
 
 
 def _cron_auth_response(request) -> Response | None:
@@ -49,6 +50,34 @@ def _playable_class_payload(playable_class: PlayableClass) -> dict:
         "name": playable_class.name,
         "image": playable_class.image_url,
         "specializations": _specializations_payload(playable_class),
+    }
+
+
+def _skill_payload(skill) -> dict:
+    payload = {
+        "id": skill.skill_id,
+        "name": skill.name,
+        "image": skill.image_url,
+        "description": skill.description,
+        "cast_time": skill.cast_time,
+    }
+    if skill.power_cost:
+        payload["power_cost"] = skill.power_cost
+    if skill.range:
+        payload["range"] = skill.range
+    if skill.cooldown:
+        payload["cooldown"] = skill.cooldown
+    return payload
+
+
+def _spec_detail_payload(spec: PlayableClassSpecialization) -> dict:
+    return {
+        "id": spec.spec_id,
+        "name": spec.name,
+        "image": spec.image_url,
+        "description": spec.description,
+        "type": spec.role_name,
+        "skills": [_skill_payload(s) for s in spec.skills.all()],
     }
 
 
@@ -211,6 +240,50 @@ class PlayableClassSpecsSyncView(APIView):
 
         try:
             stats = sync_all_playable_class_specs_from_api()
+        except Exception as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+        return Response(stats)
+
+
+class PlayableClassSpecDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, class_id: int, spec_id: int):
+        try:
+            spec = (
+                PlayableClassSpecialization.objects.select_related("playable_class")
+                .prefetch_related("skills")
+                .get(
+                    playable_class__class_id=class_id,
+                    spec_id=spec_id,
+                )
+            )
+        except PlayableClassSpecialization.DoesNotExist:
+            return Response(
+                {"detail": "Spec não encontrada para esta classe."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if not spec.description and not spec.skills.exists():
+            return Response(
+                {"detail": "Detalhes da spec ainda não sincronizados."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(_spec_detail_payload(spec))
+
+
+class PlayableClassSpecDetailsSyncView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        err = _cron_auth_response(request)
+        if err is not None:
+            return err
+        try:
+            stats = sync_all_playable_spec_details_from_api()
         except Exception as exc:
             return Response(
                 {"detail": str(exc)},
