@@ -8,6 +8,8 @@ from .views import (
     PlayableRaceClassesSyncView,
     PlayableRaceListView,
     PlayableRaceSyncView,
+    PlayableRaceClassSpecDetailView,
+    PlayableClassSpecDetailsSyncView,
 )
 
 urlpatterns = [
@@ -45,5 +47,15 @@ urlpatterns = [
         "playable-classes/specs/sync",
         PlayableClassSpecsSyncView.as_view(),
         name="playable-class-specs-sync",
+    ),
+    path(
+        "playable-race/<int:race_id>/playable-classes/<int:class_id>/specs/<int:spec_id>/",
+        PlayableRaceClassSpecDetailView.as_view(),
+        name="playable-race-class-spec-detail",
+    ),
+    path(
+        "playable-classes/specs/details/sync",
+        PlayableClassSpecDetailsSyncView.as_view(),
+        name="playable-class-spec-details-sync",
     ),
 ]
