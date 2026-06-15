@@ -6,7 +6,7 @@ import httpx
 from django.conf import settings
 from django.db import transaction
 
-from .client import fetch_client_credentials_token
+from .client import fetch_client_credentials_token, get_with_retry
 from .models import (
     PlayableClass,
     PlayableClassSpecialization,
@@ -49,8 +49,7 @@ def _fetch_spell_icon(
     spell_media_params: dict[str, str],
 ) -> str:
     pvp_url = f"{settings.BNET_API_BASE}/data/wow/pvp-talent/{pvp_talent_id}"
-    pvp_res = client.get(pvp_url, params=params, headers=headers)
-    pvp_res.raise_for_status()
+    pvp_res = get_with_retry(client, pvp_url, params=params, headers=headers)
     pvp_detail = pvp_res.json()
 
     spell = pvp_detail.get("spell") or {}
@@ -59,7 +58,9 @@ def _fetch_spell_icon(
         return ""
 
     spell_media_url = f"{settings.BNET_API_BASE}/data/wow/media/spell/{spell_id}"
-    media_res = client.get(spell_media_url, params=spell_media_params, headers=headers)
+    media_res = get_with_retry(
+        client, spell_media_url, params=spell_media_params, headers=headers
+    )
     media_res.raise_for_status()
     return _icon_url_from_media(media_res.json())
 
@@ -92,8 +93,7 @@ def sync_playable_spec_detail_from_api(
     )
 
     try:
-        detail_res = client.get(detail_url, params=params, headers=headers)
-        detail_res.raise_for_status()
+        detail_res = get_with_retry(client, detail_url, params=params, headers=headers)
         detail = detail_res.json()
 
         playable_class_data = detail.get("playable_class") or {}
@@ -101,8 +101,9 @@ def sync_playable_spec_detail_from_api(
         if class_id in _SKIP_CLASS_IDS:
             return 0
 
-        media_res = client.get(media_url, params=spec_media_params, headers=headers)
-        media_res.raise_for_status()
+        media_res = get_with_retry(
+            client, media_url, params=spec_media_params, headers=headers
+        )
         spec_icon = _icon_url_from_media(media_res.json())
 
         gender_desc = detail.get("gender_description") or {}
@@ -189,8 +190,7 @@ def sync_all_playable_spec_details_from_api(
     total_skills = 0
 
     with httpx.Client(timeout=180.0) as client:
-        index_res = client.get(index_url, params=params, headers=headers)
-        index_res.raise_for_status()
+        index_res = get_with_retry(client, index_url, params=params, headers=headers)
         specs = index_res.json().get("character_specializations", [])
 
         for item in specs:

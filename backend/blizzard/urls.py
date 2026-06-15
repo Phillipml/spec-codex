@@ -8,7 +8,7 @@ from .views import (
     PlayableRaceClassesSyncView,
     PlayableRaceListView,
     PlayableRaceSyncView,
-    PlayableClassSpecDetailView,
+    PlayableRaceClassSpecDetailView,
     PlayableClassSpecDetailsSyncView,
 )
 
@@ -49,9 +49,9 @@ urlpatterns = [
         name="playable-class-specs-sync",
     ),
     path(
-        "playable-classes/<int:class_id>/specs/<int:spec_id>/",
-        PlayableClassSpecDetailView.as_view(),
-        name="playable-class-spec-detail",
+        "playable-race/<int:race_id>/playable-classes/<int:class_id>/specs/<int:spec_id>/",
+        PlayableRaceClassSpecDetailView.as_view(),
+        name="playable-race-class-spec-detail",
     ),
     path(
         "playable-classes/specs/details/sync",

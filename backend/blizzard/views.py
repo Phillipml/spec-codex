@@ -248,30 +248,54 @@ class PlayableClassSpecsSyncView(APIView):
         return Response(stats)
 
 
-class PlayableClassSpecDetailView(APIView):
+class PlayableRaceClassSpecDetailView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, class_id: int, spec_id: int):
+    def get(self, request, race_id: int, class_id: int, spec_id: int):
+        try:
+            race = PlayableRace.objects.get(race_id=race_id)
+        except PlayableRace.DoesNotExist:
+            return Response({"detail": "Raça não encontrada."}, status=404)
+
+        if not race.playable_classes.filter(class_id=class_id).exists():
+            return Response(
+                {"detail": "Classe não disponível para esta raça."},
+                status=404,
+            )
+
         try:
             spec = (
                 PlayableClassSpecialization.objects.select_related("playable_class")
                 .prefetch_related("skills")
-                .get(
-                    playable_class__class_id=class_id,
-                    spec_id=spec_id,
-                )
+                .get(playable_class__class_id=class_id, spec_id=spec_id)
             )
         except PlayableClassSpecialization.DoesNotExist:
             return Response(
                 {"detail": "Spec não encontrada para esta classe."},
-                status=status.HTTP_404_NOT_FOUND,
+                status=404,
             )
+
         if not spec.description and not spec.skills.exists():
             return Response(
                 {"detail": "Detalhes da spec ainda não sincronizados."},
-                status=status.HTTP_404_NOT_FOUND,
+                status=404,
             )
-        return Response(_spec_detail_payload(spec))
+
+        playable_class = spec.playable_class
+        return Response(
+            {
+                "id": race.race_id,
+                "race_id": race.race_id,
+                "race_name": race.name,
+                "faction": race.faction,
+                "class": {
+                    "id": playable_class.class_id,
+                    "name": playable_class.name,
+                    "image": playable_class.image_url,
+                    "specialization": _spec_detail_payload(spec),
+                },
+            }
+        )
 
 
 class PlayableClassSpecDetailsSyncView(APIView):

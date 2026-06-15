@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import locale
+import time
 from typing import Any
 
 import httpx
@@ -12,6 +13,43 @@ from django.conf import settings
 class BNetToken:
     access_token: str
     token_type: str
+
+
+_RETRYABLE_EXCEPTIONS = (
+    httpx.RemoteProtocolError,
+    httpx.ConnectError,
+    httpx.ReadTimeout,
+    httpx.ConnectTimeout,
+    httpx.WriteTimeout,
+    httpx.PoolTimeout,
+)
+_RETRYABLE_STATUS_CODES = frozenset({429, 502, 503, 504})
+
+
+def get_with_retry(
+    client: httpx.Client,
+    url: str,
+    *,
+    max_attempts: int = 5,
+    base_delay: float = 1.0,
+    **kwargs: Any,
+) -> httpx.Response:
+    for attempt in range(max_attempts):
+        try:
+            res = client.get(url, **kwargs)
+            if res.status_code in _RETRYABLE_STATUS_CODES:
+                if attempt < max_attempts - 1:
+                    time.sleep(base_delay * (2**attempt))
+                    continue
+            res.raise_for_status()
+            return res
+        except _RETRYABLE_EXCEPTIONS:
+            if attempt < max_attempts - 1:
+                time.sleep(base_delay * (2**attempt))
+                continue
+            raise
+    msg = f"Falha ao buscar {url} após {max_attempts} tentativas"
+    raise RuntimeError(msg)
 
 
 def fetch_client_credentials_token() -> BNetToken:
