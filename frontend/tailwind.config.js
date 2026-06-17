@@ -15,14 +15,5 @@ module.exports = {
       },
     },
   },
-  safelist: [
-    "text-gold",
-    "text-horde",
-    "text-alliance",
-    "text-primary",
-    "text-secondary",
-    "bg-bgPrimary",
-    "bg-bgSecondary",
-  ],
   plugins: [],
 };
