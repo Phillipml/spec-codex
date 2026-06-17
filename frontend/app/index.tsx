@@ -1,10 +1,12 @@
+import { colors } from '@/theme/colors';
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView>
       <Text style={styles.title}>Spec Codex</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -15,6 +17,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
+    color: colors.text,
     fontSize: 24,
     fontWeight: '600',
   },
