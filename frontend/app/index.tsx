@@ -1,7 +1,7 @@
-import { colors } from '@/theme/colors'
-import { StyleSheet, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import Logo from '@/assets/images/logo.svg'
+import { colors } from '@/theme/colors';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Logo from '@/assets/images/logo.svg';
 
 export default function HomeScreen() {
   return (
@@ -11,7 +11,7 @@ export default function HomeScreen() {
         <Text style={styles.title}>Spec Codex</Text>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -25,4 +25,4 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
   },
-})
+});
