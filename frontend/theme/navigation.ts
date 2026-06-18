@@ -1,5 +1,5 @@
-import { DarkTheme, Theme } from 'expo-router/react-navigation';
-import { colors } from './colors';
+import { DarkTheme, Theme } from 'expo-router/react-navigation'
+import { colors } from './colors'
 
 export const navigationTheme: Theme = {
   ...DarkTheme,
@@ -12,4 +12,4 @@ export const navigationTheme: Theme = {
     border: colors.gray,
     notification: colors.gold,
   },
-};
+}

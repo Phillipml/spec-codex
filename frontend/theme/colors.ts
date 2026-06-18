@@ -6,6 +6,6 @@ export const colors = {
   background: '#1C1B1B',
   horde: '#8C1616',
   alliance: '#004A94',
-} as const;
+} as const
 
-export type ColorName = keyof typeof colors;
+export type ColorName = keyof typeof colors
