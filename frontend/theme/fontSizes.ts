@@ -1,12 +1,8 @@
 export const sizes = {
-  sm: '0.625rem',
-  md: '0.875rem',
-  lg: '1.125rem',
-  xl: '2.25rem',
+  sm: 10,
+  md: 14,
+  lg: 18,
+  xl: 36,
 } as const;
 
 export type SizesType = keyof typeof sizes;
-
-export function sizeReturn(size: SizesType): string {
-  return sizes[size] ?? sizes.md;
-}

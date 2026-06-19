@@ -3,7 +3,7 @@ export const colors = {
   secondary: '#D1C6AB',
   gold: '#EDC200',
   gray: '#2A2A2A',
-  background: '#1C1B1B',
+  background: '#131314',
   horde: '#8C1616',
   alliance: '#004A94',
 } as const;
