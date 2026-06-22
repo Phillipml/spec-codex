@@ -1,23 +1,40 @@
-import { Races } from '@/types/mockup';
 import Typography from '../ui/Typography';
 import { colors } from '@/theme/colors';
 import { FlatList, View, StyleSheet } from 'react-native';
-export default function RaceList() {
+import { Race } from '@/types/api';
+type RaceListType = {
+  data: Race[];
+  faction: 'alliance' | 'horde';
+};
+export default function RaceList({ data, faction }: RaceListType) {
+  const factionMap = { alliance: 'Aliança', horde: 'Horda' } as const;
+  const raceByFaction = data.filter((item) => item.faction === factionMap[faction]);
   return (
     <View style={{ paddingHorizontal: 16 }}>
-      <View style={styles.facction}>
-        <Typography size="lg" color="alliance">
-          Aliança
+      <View
+        style={[
+          styles.facction,
+          faction === 'alliance'
+            ? {
+                borderLeftColor: colors.alliance,
+                borderBottomWidth: 2,
+                borderBottomColor: colors.alliance,
+              }
+            : { borderLeftColor: colors.horde, borderTopWidth: 2, borderTopColor: colors.horde },
+        ]}
+      >
+        <Typography size="lg" color={faction}>
+          {faction === 'alliance' ? 'Aliança' : 'Horda'}
         </Typography>
-        <Typography size="sm" color="secondary">
-          Pela Aliança!
+        <Typography size="md" color="secondary">
+          {faction === 'alliance' ? 'Pela Aliança!' : 'Pela Horda!'}
         </Typography>
       </View>
       <View>
         <FlatList
-          data={Races}
+          data={raceByFaction}
           keyExtractor={(item) => item.name}
-          numColumns={2}
+          numColumns={3}
           scrollEnabled={false}
           columnWrapperStyle={{
             gap: 18,
@@ -64,7 +81,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderLeftWidth: 1,
-    borderLeftColor: colors.horde,
   },
   raceItem: {
     flex: 1,

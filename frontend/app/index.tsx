@@ -1,12 +1,19 @@
 import { colors } from '@/theme/colors';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from '@/assets/images/logo.svg';
 import Typography from '@/components/ui/Typography';
 import RaceList from '@/components/layout/RaceList';
+import { useRaces } from '@/hooks/useRaces';
 
-const RACES = ['elfo', 'Orc', 'Dractyr', 'Anão', 'Noturno'];
 export default function HomeScreen() {
+  const { data, isLoading, error } = useRaces();
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+  if (error) {
+    return <View>Error: {error.message}</View>;
+  }
   return (
     <SafeAreaView>
       <ScrollView>
@@ -16,7 +23,8 @@ export default function HomeScreen() {
             Spec-Codex
           </Typography>
         </View>
-        <RaceList />
+        <RaceList data={data || []} faction="alliance" />
+        <RaceList data={data || []} faction="horde" />
       </ScrollView>
     </SafeAreaView>
   );
