@@ -5,10 +5,10 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
 import { navigationTheme } from '@/theme/navigation';
-
-export { ErrorBoundary } from 'expo-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query-client';
+
+export { ErrorBoundary } from 'expo-router';
 
 export default function RootLayout() {
   return (

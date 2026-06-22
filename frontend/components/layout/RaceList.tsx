@@ -1,7 +1,8 @@
-import Typography from '../ui/Typography';
+import { Typography } from '../ui/Typography';
 import { colors } from '@/theme/colors';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { Race } from '@/types/api';
+
 type RaceListType = {
   data: Race[];
   faction: 'alliance' | 'horde';
