@@ -7,9 +7,12 @@ import { colors } from '@/theme/colors';
 import { navigationTheme } from '@/theme/navigation';
 
 export { ErrorBoundary } from 'expo-router';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/query-client';
 
 export default function RootLayout() {
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider value={navigationTheme}>
       <SafeAreaProvider>
         <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -24,5 +27,6 @@ export default function RootLayout() {
         </View>
       </SafeAreaProvider>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 }
