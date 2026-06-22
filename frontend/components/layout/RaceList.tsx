@@ -10,7 +10,7 @@ export default function RaceList({ data, faction }: RaceListType) {
   const factionMap = { alliance: 'Aliança', horde: 'Horda' } as const;
   const raceByFaction = data.filter((item) => item.faction === factionMap[faction]);
   return (
-    <View style={{ paddingHorizontal: 16 }}>
+    <View style={[{ paddingHorizontal: 16 }, faction === 'horde' ? { paddingTop: 12 } : null]}>
       <View
         style={[
           styles.facction,

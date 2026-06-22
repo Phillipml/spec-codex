@@ -23,8 +23,10 @@ export default function HomeScreen() {
             Spec-Codex
           </Typography>
         </View>
-        <RaceList data={data || []} faction="alliance" />
-        <RaceList data={data || []} faction="horde" />
+        <View style={{ paddingBottom: 32 }}>
+          <RaceList data={data || []} faction="alliance" />
+          <RaceList data={data || []} faction="horde" />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
