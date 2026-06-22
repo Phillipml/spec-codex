@@ -1,12 +1,12 @@
-import { Stack } from 'expo-router'
-import { ThemeProvider } from 'expo-router/react-navigation'
-import { View } from 'react-native'
-import 'react-native-reanimated'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { colors } from '@/theme/colors'
-import { navigationTheme } from '@/theme/navigation'
+import { Stack } from 'expo-router';
+import { ThemeProvider } from 'expo-router/react-navigation';
+import { View } from 'react-native';
+import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { colors } from '@/theme/colors';
+import { navigationTheme } from '@/theme/navigation';
 
-export { ErrorBoundary } from 'expo-router'
+export { ErrorBoundary } from 'expo-router';
 
 export default function RootLayout() {
   return (
@@ -16,7 +16,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: colors.background },
+              contentStyle: { backgroundColor: colors.background, padding: 2 },
             }}
           >
             <Stack.Screen name="index" options={{ title: 'Home' }} />
@@ -24,5 +24,5 @@ export default function RootLayout() {
         </View>
       </SafeAreaProvider>
     </ThemeProvider>
-  )
+  );
 }
