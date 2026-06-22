@@ -13,20 +13,20 @@ import { queryClient } from '@/lib/query-client';
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-    <ThemeProvider value={navigationTheme}>
-      <SafeAreaProvider>
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.background, padding: 2 },
-            }}
-          >
-            <Stack.Screen name="index" options={{ title: 'Home' }} />
-          </Stack>
-        </View>
-      </SafeAreaProvider>
-    </ThemeProvider>
+      <ThemeProvider value={navigationTheme}>
+        <SafeAreaProvider>
+          <View style={{ flex: 1, backgroundColor: colors.background }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.background, padding: 2 },
+              }}
+            >
+              <Stack.Screen name="index" options={{ title: 'Home' }} />
+            </Stack>
+          </View>
+        </SafeAreaProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
