@@ -23,6 +23,7 @@ export default function RootLayout() {
               }}
             >
               <Stack.Screen name="index" options={{ title: 'Home' }} />
+              <Stack.Screen name="classes/[race_id]" options={{ title: 'Race Classes' }} />
             </Stack>
           </View>
         </SafeAreaProvider>
