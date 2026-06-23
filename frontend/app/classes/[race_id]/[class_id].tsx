@@ -1,8 +1,9 @@
 import Header from '@/components/layout/Header';
 import Typography from '@/components/ui/Typography';
 import { useClassSpecs } from '@/hooks/useRaces';
+import { colors } from '@/theme/colors';
 import { useLocalSearchParams } from 'expo-router';
-import { Image, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClassSpecs() {
@@ -18,6 +19,38 @@ export default function ClassSpecs() {
           <Image src={data?.class.image} width={32} height={32} style={{ marginLeft: 8 }} />
         </View>
       </Header>
+      <View style={{ paddingHorizontal: 16 }}>
+        <View style={{ marginVertical: 32, gap: 8 }}>
+          <Typography size="lg">Escolha sua especialização</Typography>
+          <Typography color="secondary">
+            Domine a arte de um {data?.class.name} escolhendo o melhor caminho
+          </Typography>
+        </View>
+        <View style={{ paddingBottom: 100 }}>
+          {data?.class.specializations.map((item) => (
+            <View style={styles.card}>
+              <Image src={item.image} width={52} height={52} />
+              <Typography size="xl" color="secondary" style={{ width: '70%', textAlign: 'center' }}>
+                {item.name}
+              </Typography>
+            </View>
+          ))}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    marginVertical: 16,
+    height: 120,
+    padding: 8,
+    backgroundColor: colors.gray,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.secondary,
+  },
+});
