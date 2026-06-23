@@ -13,6 +13,13 @@ export default function ClassSpecs() {
   if (isLoading) {
     return <Loading />;
   }
+  if (error) {
+    return (
+      <SafeAreaView>
+        <Typography>{error.message}</Typography>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView>
       <Header style={{ alignItems: 'center' }}>

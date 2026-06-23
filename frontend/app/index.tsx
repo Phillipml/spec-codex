@@ -13,7 +13,11 @@ export default function HomeScreen() {
     return <Loading />;
   }
   if (error) {
-    return <View>Error: {error.message}</View>;
+    return (
+      <SafeAreaView>
+        <Typography>{error.message}</Typography>
+      </SafeAreaView>
+    );
   }
   return (
     <SafeAreaView>

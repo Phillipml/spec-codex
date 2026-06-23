@@ -21,9 +21,9 @@ export default function RaceClasses() {
   }
   if (error) {
     return (
-      <View>
+      <SafeAreaView>
         <Typography>{error.message}</Typography>
-      </View>
+      </SafeAreaView>
     );
   }
   return (
