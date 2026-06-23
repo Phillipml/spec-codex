@@ -96,7 +96,7 @@ class TestPlayableRaceClassesListView:
         res = api.get("/api/playable-race/1/playable-classes")
         assert res.status_code == 200
         data = res.json()
-        assert data["race_name"] == "Humano"
+        assert data["name"] == "Humano"
         assert len(data["playable_classes"]) == 1
 
 

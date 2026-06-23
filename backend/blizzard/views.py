@@ -131,8 +131,7 @@ class PlayableRaceClassesListView(APIView):
         return Response(
             {
                 "id": race.race_id,
-                "race_id": race.race_id,
-                "race_name": race.name,
+                "name": race.name,
                 "faction": race.faction,
                 "playable_classes": [
                     {
@@ -202,8 +201,7 @@ class PlayableRaceClassSpecsDetailView(APIView):
         return Response(
             {
                 "id": race.race_id,
-                "race_id": race.race_id,
-                "race_name": race.name,
+                "name": race.name,
                 "faction": race.faction,
                 "class": {
                     "id": playable_class.class_id,
@@ -285,8 +283,7 @@ class PlayableRaceClassSpecDetailView(APIView):
         return Response(
             {
                 "id": race.race_id,
-                "race_id": race.race_id,
-                "race_name": race.name,
+                "name": race.name,
                 "faction": race.faction,
                 "class": {
                     "id": playable_class.class_id,
