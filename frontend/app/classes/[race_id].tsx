@@ -1,3 +1,4 @@
+import Header from '@/components/layout/Header';
 import Typography from '@/components/ui/Typography';
 import { useRaceClasses } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
@@ -26,11 +27,11 @@ export default function RaceClasses() {
   }
   return (
     <SafeAreaView>
-      <View style={styles.nameHeader}>
+      <Header>
         <Typography color="gold" size="lg" style={{ textAlign: 'center' }}>
           {data?.name}
         </Typography>
-      </View>
+      </Header>
       <ScrollView style={{ paddingHorizontal: 16 }}>
         <Image source={factionImage[data?.faction || 'Aliança']} style={styles.classImg} />
         <Typography size="lg" color="secondary" style={{ paddingVertical: 16 }}>
@@ -63,12 +64,6 @@ export default function RaceClasses() {
   );
 }
 const styles = StyleSheet.create({
-  nameHeader: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderColor: colors.secondary,
-    backgroundColor: colors.gray,
-  },
   classList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
