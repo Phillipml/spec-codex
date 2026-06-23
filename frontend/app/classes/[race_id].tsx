@@ -1,34 +1,38 @@
+import Header from '@/components/layout/Header';
+import Loading from '@/components/ui/Loading';
 import Typography from '@/components/ui/Typography';
 import { useRaceClasses } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
-import { useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RaceClasses() {
+  const router = useRouter();
   const { race_id } = useLocalSearchParams<{ race_id: string }>();
   const { data, isLoading, error } = useRaceClasses(Number(race_id));
   const factionImage = {
     Horda: require('@/assets/images/horde.png'),
     Aliança: require('@/assets/images/alliance.png'),
   };
+
   if (isLoading) {
-    return <Typography>Carregando..</Typography>;
+    return <Loading />;
   }
   if (error) {
     return (
-      <View>
+      <SafeAreaView>
         <Typography>{error.message}</Typography>
-      </View>
+      </SafeAreaView>
     );
   }
   return (
     <SafeAreaView>
-      <View style={styles.nameHeader}>
+      <Header>
         <Typography color="gold" size="lg" style={{ textAlign: 'center' }}>
           {data?.name}
         </Typography>
-      </View>
+      </Header>
       <ScrollView style={{ paddingHorizontal: 16 }}>
         <Image source={factionImage[data?.faction || 'Aliança']} style={styles.classImg} />
         <Typography size="lg" color="secondary" style={{ paddingVertical: 16 }}>
@@ -36,7 +40,16 @@ export default function RaceClasses() {
         </Typography>
         <View style={styles.classList}>
           {data?.playable_classes.map((item) => (
-            <View key={item.class_id} style={styles.specItem}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.specItem}
+              onPress={() =>
+                router.push({
+                  pathname: '/classes/[race_id]/[class_id]',
+                  params: { race_id: race_id, class_id: item.id },
+                })
+              }
+            >
               <Image
                 src={item.image}
                 width={56}
@@ -44,7 +57,7 @@ export default function RaceClasses() {
                 style={{ borderWidth: 1, borderColor: colors.gold, borderRadius: 4 }}
               />
               <Typography style={{ marginTop: 8, color: colors.secondary }}>{item.name}</Typography>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
@@ -52,12 +65,6 @@ export default function RaceClasses() {
   );
 }
 const styles = StyleSheet.create({
-  nameHeader: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderColor: colors.secondary,
-    backgroundColor: colors.gray,
-  },
   classList: {
     flexDirection: 'row',
     flexWrap: 'wrap',

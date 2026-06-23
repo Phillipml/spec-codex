@@ -5,14 +5,19 @@ import Logo from '@/assets/images/logo.svg';
 import { Typography } from '@/components/ui/Typography';
 import RaceList from '@/components/layout/RaceList';
 import { useRaces } from '@/hooks/useRaces';
+import Loading from '@/components/ui/Loading';
 
 export default function HomeScreen() {
   const { data, isLoading, error } = useRaces();
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return <Loading />;
   }
   if (error) {
-    return <View>Error: {error.message}</View>;
+    return (
+      <SafeAreaView>
+        <Typography>{error.message}</Typography>
+      </SafeAreaView>
+    );
   }
   return (
     <SafeAreaView>
