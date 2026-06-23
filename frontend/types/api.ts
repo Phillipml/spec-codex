@@ -4,10 +4,10 @@ export interface Race {
   faction: 'Aliança' | 'Horda';
 }
 interface Class {
-  class_id: number,
-  name: string,
-  image: string
+  class_id: number;
+  name: string;
+  image: string;
 }
 export interface RaceClasses extends Race {
-  playable_classes: Class[]
+  playable_classes: Class[];
 }

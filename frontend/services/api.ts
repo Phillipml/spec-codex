@@ -1,4 +1,4 @@
-import { Race } from '@/types/api';
+import { Race, RaceClasses } from '@/types/api';
 
 export async function fetchRaces(): Promise<Race[]> {
   const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/playable-race/index?format=json`);
@@ -7,12 +7,12 @@ export async function fetchRaces(): Promise<Race[]> {
   }
   return res.json();
 }
-export async function fetchRaceClasses() {
+export async function fetchRaceClasses(race_id: number): Promise<RaceClasses> {
   const res = await fetch(
-    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/10/playable-classes?format=json`,
+    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes?format=json`,
   );
   if (!res.ok) {
-    throw new Error('Filed to fetch race classes');
+    throw new Error('Failed to fetch race classes');
   }
-  res.json();
+  return res.json();
 }
