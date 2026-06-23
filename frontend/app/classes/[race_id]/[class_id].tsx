@@ -39,7 +39,7 @@ export default function ClassSpecs() {
         </View>
         <View style={{ paddingBottom: 100 }}>
           {data?.class.specializations.map((item) => (
-            <View style={styles.card}>
+            <View style={styles.card} key={item.id}>
               <Image src={item.image} width={52} height={52} />
               <Typography size="xl" color="secondary" style={{ width: '70%', textAlign: 'center' }}>
                 {item.name}
