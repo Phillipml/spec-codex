@@ -8,13 +8,32 @@ interface ClassOrSpec {
   name: string;
   image: string;
 }
-interface ClassSpecs extends ClassOrSpec {
-  specializations: ClassOrSpec[];
+interface Skill {
+  id: number;
+  name: string;
+  image: string;
+  description: string;
+  cast_time: string;
+  range?: string;
+  cooldown?: string;
+}
+interface SpecDetailed {
+  id: string | number;
+  name: string;
+  image: string;
+  description: string;
+  type: string;
+  skills: Skill[];
+}
+
+interface SpecSkills extends ClassOrSpec {
+  specialization: SpecDetailed[];
 }
 
 export interface RaceClasses extends Race {
   playable_classes: ClassOrSpec[];
 }
-export interface SpecList extends Race {
-  class: ClassSpecs;
+
+export interface SkillsList extends Race {
+  class: SpecSkills;
 }
