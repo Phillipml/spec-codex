@@ -1,10 +1,10 @@
 export interface Race {
-  id: number;
+  id: string | number;
   name: string;
   faction: 'Aliança' | 'Horda';
 }
 interface Class {
-  class_id: number;
+  class_id: string | number;
   name: string;
   image: string;
 }

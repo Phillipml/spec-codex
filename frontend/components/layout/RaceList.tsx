@@ -1,13 +1,15 @@
 import { Typography } from '../ui/Typography';
 import { colors } from '@/theme/colors';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Race } from '@/types/api';
+import { useRouter } from 'expo-router';
 
 type RaceListType = {
   data: Race[];
   faction: 'alliance' | 'horde';
 };
 export default function RaceList({ data, faction }: RaceListType) {
+  const router = useRouter();
   const factionMap = { alliance: 'Aliança', horde: 'Horda' } as const;
   const raceByFaction = data.filter((item) => item.faction === factionMap[faction]);
   return (
@@ -44,7 +46,10 @@ export default function RaceList({ data, faction }: RaceListType) {
             gap: 18,
           }}
           renderItem={({ item }) => (
-            <View
+            <TouchableOpacity
+              onPress={() =>
+                router.push({ pathname: '/classes/[race_id]', params: { race_id: item.id } })
+              }
               style={{
                 flex: 1,
                 height: 90,
@@ -58,7 +63,7 @@ export default function RaceList({ data, faction }: RaceListType) {
               }}
             >
               <Typography style={{ textAlign: 'center' }}>{item.name}</Typography>
-            </View>
+            </TouchableOpacity>
           )}
         />
       </View>
