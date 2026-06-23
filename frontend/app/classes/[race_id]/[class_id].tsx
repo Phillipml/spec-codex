@@ -3,7 +3,7 @@ import Typography from '@/components/ui/Typography';
 import { useClassSpecs } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
 import { useLocalSearchParams } from 'expo-router';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClassSpecs() {
@@ -19,7 +19,7 @@ export default function ClassSpecs() {
           <Image src={data?.class.image} width={32} height={32} style={{ marginLeft: 8 }} />
         </View>
       </Header>
-      <View style={{ paddingHorizontal: 16 }}>
+      <ScrollView style={{ paddingHorizontal: 16 }}>
         <View style={{ marginVertical: 32, gap: 8 }}>
           <Typography size="lg">Escolha sua especialização</Typography>
           <Typography color="secondary">
@@ -36,7 +36,7 @@ export default function ClassSpecs() {
             </View>
           ))}
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
