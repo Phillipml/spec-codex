@@ -33,7 +33,7 @@ def sample_race():
 @pytest.fixture
 def sample_class():
     return PlayableClass.objects.create(
-        class_id=1, name="Guerreiro", image_url="https://example.com/c.png"
+        id=1, class_id=1, name="Guerreiro", image_url="https://example.com/c.png"
     )
 
 
@@ -89,6 +89,7 @@ class TestPlayableRaceClassesListView:
     def test_success(self, api, sample_race):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -131,6 +132,7 @@ class TestPlayableRaceClassSpecsDetailView:
     def test_class_not_found(self, api, sample_race):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -142,6 +144,7 @@ class TestPlayableRaceClassSpecsDetailView:
     def test_specs_not_synced(self, api, sample_race, sample_class):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -153,6 +156,7 @@ class TestPlayableRaceClassSpecsDetailView:
     def test_success(self, api, sample_race, sample_class):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -215,6 +219,7 @@ class TestPlayableRaceClassSpecDetailView:
     def test_spec_not_found(self, api, sample_race, sample_class):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -225,6 +230,7 @@ class TestPlayableRaceClassSpecDetailView:
     def test_details_not_synced(self, api, sample_race, sample_class):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",
@@ -242,6 +248,7 @@ class TestPlayableRaceClassSpecDetailView:
     def test_success_with_full_skill_payload(self, api, sample_race, sample_class):
         PlayableRaceClass.objects.create(
             race=sample_race,
+            id=1,
             class_id=1,
             name="Guerreiro",
             image_url="https://example.com/i.png",

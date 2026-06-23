@@ -135,7 +135,7 @@ class PlayableRaceClassesListView(APIView):
                 "faction": race.faction,
                 "playable_classes": [
                     {
-                        "class_id": c.class_id,
+                        "id": c.class_id,
                         "name": c.name,
                         "image": c.image_url,
                     }
