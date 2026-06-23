@@ -36,7 +36,7 @@ export default function RaceClasses() {
         </Typography>
         <View style={styles.classList}>
           {data?.playable_classes.map((item) => (
-            <View key={item.class_id} style={styles.specItem}>
+            <View key={item.id} style={styles.specItem}>
               <Image
                 src={item.image}
                 width={56}

@@ -4,7 +4,7 @@ export interface Race {
   faction: 'Aliança' | 'Horda';
 }
 interface Class {
-  class_id: string | number;
+  id: string | number;
   name: string;
   image: string;
 }
