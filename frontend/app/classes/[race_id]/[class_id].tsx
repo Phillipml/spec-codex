@@ -1,4 +1,5 @@
 import Header from '@/components/layout/Header';
+import Loading from '@/components/ui/Loading';
 import Typography from '@/components/ui/Typography';
 import { useClassSpecs } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
@@ -9,6 +10,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ClassSpecs() {
   const { race_id, class_id } = useLocalSearchParams<{ race_id: string; class_id: string }>();
   const { data, isLoading, error } = useClassSpecs(race_id, class_id);
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <SafeAreaView>
       <Header style={{ alignItems: 'center' }}>

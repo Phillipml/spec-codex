@@ -1,4 +1,5 @@
 import Header from '@/components/layout/Header';
+import Loading from '@/components/ui/Loading';
 import Typography from '@/components/ui/Typography';
 import { useRaceClasses } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
@@ -16,7 +17,7 @@ export default function RaceClasses() {
   };
 
   if (isLoading) {
-    return <Typography>Carregando..</Typography>;
+    return <Loading />;
   }
   if (error) {
     return (
