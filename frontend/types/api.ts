@@ -14,6 +14,7 @@ interface ClassSpecs extends ClassOrSpec {
 interface Skill extends ClassOrSpec {
   description: string;
   cast_time: string;
+  power_cost: string;
   range?: string;
   cooldown?: string;
 }
