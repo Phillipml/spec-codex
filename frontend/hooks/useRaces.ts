@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchClassSpecs, fetchRaceClasses, fetchRaces } from '../services/api';
-import { Race, RaceClasses, SpecList } from '../types/api';
+import { fetchClassSpecs, fetchRaceClasses, fetchRaces, fetchSpecSkills } from '../services/api';
+import { Race, RaceClasses, SkillsList, SpecList } from '../types/api';
 
 export function useRaces() {
   return useQuery<Race[]>({
@@ -21,5 +21,12 @@ export function useClassSpecs(race_id: string, class_id: string) {
     queryKey: ['classSpecs', race_id, class_id],
     queryFn: () => fetchClassSpecs(race_id, class_id),
     enabled: !!race_id && !!class_id,
+  });
+}
+export function useSpecSkills(race_id: string, class_id: string, spec_id: string) {
+  return useQuery<SkillsList>({
+    queryKey: ['skills', race_id, class_id, spec_id],
+    queryFn: () => fetchSpecSkills(race_id, class_id, spec_id),
+    enabled: !!race_id && !!class_id && !!spec_id,
   });
 }
