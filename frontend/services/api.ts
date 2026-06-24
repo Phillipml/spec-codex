@@ -20,7 +20,7 @@ export async function fetchClassSpecs(race_id: string, class_id: string): Promis
   const res = await fetch(
     `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/?format=json`,
   );
-  if (!res) {
+  if (!res.ok) {
     throw new Error('Failed to fetch class specs');
   }
   return res.json();
@@ -31,9 +31,9 @@ export async function fetchSpecSkills(
   spec_id: string,
 ): Promise<SkillsList> {
   const res = await fetch(
-    `/playable-race/${race_id}/playable-classes/${class_id}/specs/${spec_id}/?format=json`,
+    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/${spec_id}?format=json`,
   );
-  if (!res) {
+  if (!res.ok) {
     throw new Error('Failed to fetch skills list');
   }
   return res.json();
