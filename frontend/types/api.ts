@@ -33,7 +33,9 @@ interface SpecSkills extends ClassOrSpec {
 export interface RaceClasses extends Race {
   playable_classes: ClassOrSpec[];
 }
-
+export interface SpecList extends Race {
+  class: ClassOrSpec;
+}
 export interface SkillsList extends Race {
   class: SpecSkills;
 }
