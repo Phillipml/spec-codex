@@ -3,11 +3,12 @@ import Loading from '@/components/ui/Loading';
 import Typography from '@/components/ui/Typography';
 import { useClassSpecs } from '@/hooks/useRaces';
 import { colors } from '@/theme/colors';
-import { useLocalSearchParams } from 'expo-router';
-import { Image, StyleSheet, View, ScrollView } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClassSpecs() {
+  const router = useRouter();
   const { race_id, class_id } = useLocalSearchParams<{ race_id: string; class_id: string }>();
   const { data, isLoading, error } = useClassSpecs(race_id, class_id);
   if (isLoading) {
@@ -39,12 +40,21 @@ export default function ClassSpecs() {
         </View>
         <View style={{ paddingBottom: 100 }}>
           {data?.class.specializations.map((item) => (
-            <View style={styles.card} key={item.id}>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: '/classes/[race_id]/[class_id]/[spec_id]',
+                  params: { race_id: race_id, class_id: class_id, spec_id: item.id },
+                })
+              }
+              style={styles.card}
+              key={item.id}
+            >
               <Image src={item.image} width={52} height={52} />
               <Typography size="xl" color="secondary" style={{ width: '70%', textAlign: 'center' }}>
                 {item.name}
               </Typography>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
