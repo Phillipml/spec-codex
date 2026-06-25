@@ -1,7 +1,7 @@
 import { Race, RaceClasses, SkillsList, SpecList } from '@/types/api';
 
 export async function fetchRaces(): Promise<Race[]> {
-  const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/playable-race/index?format=json`);
+  const res = await fetch(`${process.env.EXPO_PUBLIC_API_SPEC_CODEX_URL}/playable-race/index?format=json`);
   if (!res.ok) {
     throw new Error('Failed to fetch races');
   }
@@ -9,7 +9,7 @@ export async function fetchRaces(): Promise<Race[]> {
 }
 export async function fetchRaceClasses(race_id: number | string): Promise<RaceClasses> {
   const res = await fetch(
-    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes?format=json`,
+    `${process.env.EXPO_PUBLIC_API_SPEC_CODEX_URL}/playable-race/${race_id}/playable-classes?format=json`,
   );
   if (!res.ok) {
     throw new Error('Failed to fetch race classes');
@@ -18,7 +18,7 @@ export async function fetchRaceClasses(race_id: number | string): Promise<RaceCl
 }
 export async function fetchClassSpecs(race_id: string, class_id: string): Promise<SpecList> {
   const res = await fetch(
-    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/?format=json`,
+    `${process.env.EXPO_PUBLIC_API_SPEC_CODEX_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/?format=json`,
   );
   if (!res.ok) {
     throw new Error('Failed to fetch class specs');
@@ -31,7 +31,7 @@ export async function fetchSpecSkills(
   spec_id: string,
 ): Promise<SkillsList> {
   const res = await fetch(
-    `${process.env.EXPO_PUBLIC_API_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/${spec_id}?format=json`,
+    `${process.env.EXPO_PUBLIC_API_SPEC_CODEX_URL}/playable-race/${race_id}/playable-classes/${class_id}/specs/${spec_id}?format=json`,
   );
   if (!res.ok) {
     throw new Error('Failed to fetch skills list');
