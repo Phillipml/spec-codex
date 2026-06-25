@@ -27,13 +27,8 @@ export default function RaceClasses() {
     );
   }
   return (
-    <SafeAreaView>
-      <Header>
-        <Typography color="gold" size="lg" style={{ textAlign: 'center' }}>
-          {data?.name}
-        </Typography>
-      </Header>
-      <ScrollView style={{ paddingHorizontal: 16 }}>
+    <View>
+      <ScrollView style={{ paddingHorizontal: 16 }} contentContainerStyle={{ paddingBottom: 100 }}>
         <Image source={factionImage[data?.faction || 'Aliança']} style={styles.classImg} />
         <Typography size="lg" color="secondary" style={{ paddingVertical: 16 }}>
           Escolha seu caminho
@@ -61,7 +56,7 @@ export default function RaceClasses() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({

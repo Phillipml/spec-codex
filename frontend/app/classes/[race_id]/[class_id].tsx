@@ -22,15 +22,7 @@ export default function ClassSpecs() {
     );
   }
   return (
-    <SafeAreaView>
-      <Header style={{ alignItems: 'center' }}>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Typography color="gold" size="lg">
-            {data?.name}
-          </Typography>
-          <Image src={data?.class.image} width={32} height={32} style={{ marginLeft: 8 }} />
-        </View>
-      </Header>
+    <View>
       <ScrollView style={{ paddingHorizontal: 16 }}>
         <View style={{ marginVertical: 32, gap: 8 }}>
           <Typography size="lg">Escolha sua especialização</Typography>
@@ -58,7 +50,7 @@ export default function ClassSpecs() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({

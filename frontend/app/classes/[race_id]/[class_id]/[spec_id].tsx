@@ -34,7 +34,7 @@ export default function SkillsList() {
     );
   }
   return (
-    <SafeAreaView>
+    <View>
       <View style={[styles.header, { borderColor: typeSpecColor() }]}>
         <Image
           src={data?.class.image}
@@ -90,7 +90,7 @@ export default function SkillsList() {
             <Typography color="secondary">{data?.class.specialization.description}</Typography>
           </View>
         </View>
-        <View style={{ paddingBottom: 180 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 300 }}>
           <Typography color="gold" size="xl" style={{ textAlign: 'center', paddingTop: 16 }}>
             Skills
           </Typography>
@@ -140,9 +140,9 @@ export default function SkillsList() {
               </View>
             </View>
           ))}
-        </View>
+        </ScrollView>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
