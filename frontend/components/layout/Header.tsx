@@ -1,18 +1,26 @@
 import { colors } from '@/theme/colors';
 import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
-import { ViewProps } from 'react-native/Libraries/Components/View/ViewPropTypes';
+import Typography from '../ui/Typography';
+import Logo from '@/assets/images/logo.svg';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-type HeaderProps = ViewProps;
-export default function Header({ style, ...props }: HeaderProps) {
-  return <View style={[styles.nameHeader, style]} {...props} />;
+export default function Header() {
+  return (
+    <SafeAreaView edges={['top']} style={styles.header}>
+      <Logo width={80} height={80} />
+      <Typography size="lg" color="gold">
+        Spec-Codex
+      </Typography>
+    </SafeAreaView>
+  );
 }
 const styles = StyleSheet.create({
-  nameHeader: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+  header: {
+    position: 'fixed',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     borderBottomWidth: 1,
-    borderColor: colors.secondary,
-    backgroundColor: colors.gray,
+    borderBottomColor: colors.gold,
   },
 });
